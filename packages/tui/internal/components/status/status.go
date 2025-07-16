@@ -46,13 +46,12 @@ func (m statusComponent) logo() string {
 		Bold(true).
 		Render
 
-	open := base("open")
-	code := emphasis("code ")
+	AIO := emphasis("AIO ")
 	version := base(m.app.Version)
 	return styles.NewStyle().
 		Background(t.BackgroundElement()).
 		Padding(0, 1).
-		Render(open + code + version)
+		Render(AIO + version)
 }
 
 func (m statusComponent) View() string {
