@@ -333,6 +333,10 @@ func LoadFromConfig(config *opencode.Config) CommandRegistry {
 			Trigger:     []string{"exit", "quit"},
 		},
 	}
+	
+	// Apply custom commands and keybinding modifications
+	defaults = ApplyCustomizations(defaults)
+	
 	registry := make(CommandRegistry)
 	keybinds := map[string]string{}
 	marshalled, _ := json.Marshal(config.Keybinds)

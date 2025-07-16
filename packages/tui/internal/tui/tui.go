@@ -532,6 +532,13 @@ func (a appModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.editor.SetExitKeyInDebounce(false)
 	case dialog.FindSelectedMsg:
 		return a.openFile(msg.FilePath)
+	case dialog.ModeSelectedMsg:
+		// Close the modal and switch to selected mode
+		a.modal = nil
+		a.app.Mode = &msg.Mode
+		a.app.State.ModeModel[msg.Mode.Name] = a.app.State.ModeModel[a.app.Mode.Name]
+		a.app.SaveState()
+		return a, toast.NewInfoToast("Switched to " + msg.Mode.Name + " mode")
 	}
 
 	s, cmd := a.status.Update(msg)
@@ -810,6 +817,9 @@ func (a appModel) executeCommand(command commands.Command) (tea.Model, tea.Cmd) 
 		updated, cmd := a.app.SwitchMode()
 		a.app = updated
 		cmds = append(cmds, cmd)
+	case commands.ModeSelectCommand:
+		modeSelectDialog := dialog.NewModeSelectDialog(a.app)
+		a.modal = modeSelectDialog
 	case commands.EditorOpenCommand:
 		if a.app.IsBusy() {
 			// status.Warn("Agent is working, please wait...")
