@@ -660,13 +660,13 @@ func (a appModel) home(width int) string {
 	muted := styles.NewStyle().Foreground(t.TextMuted()).Background(t.Background()).Render
 
 	open := `
-█▀▀█ █▀▀█ █▀▀ █▀▀▄ 
-█░░█ █░░█ █▀▀ █░░█ 
-▀▀▀▀ █▀▀▀ ▀▀▀ ▀  ▀ `
+█▀▀▀ █▀▀█ █  █ █▀▄▀█ ▀█▀ 
+█▀▀▀ █▄▄█ █▀▀█ █ ▀ █  █  
+▀    ▀  ▀ ▀  ▀ ▀   ▀ ▀▀▀ `
 	code := `
-█▀▀ █▀▀█ █▀▀▄ █▀▀
-█░░ █░░█ █░░█ █▀▀
-▀▀▀ ▀▀▀▀ ▀▀▀  ▀▀▀`
+█▀▀█ █  █ ▀█▀ █  
+█▄▄█ █▄▄█  █  █  
+▀  ▀ ▄▄▄█ ▀▀▀ ▀▀▀`
 
 	logo := lipgloss.JoinHorizontal(
 		lipgloss.Top,
