@@ -90,16 +90,15 @@ if [[ -z $config_file ]]; then
     exit 1
 fi
 
-if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
-    case $current_shell in
-        fish)
-            add_to_path "$config_file" "fish_add_path $INSTALL_DIR"
-        ;;
-        *)
-            add_to_path "$config_file" "export PATH=$INSTALL_DIR:\$PATH"
-        ;;
-    esac
-fi
+# Always add to config file to ensure it persists across sessions
+case $current_shell in
+    fish)
+        add_to_path "$config_file" "fish_add_path $INSTALL_DIR"
+    ;;
+    *)
+        add_to_path "$config_file" "export PATH=$INSTALL_DIR:\$PATH"
+    ;;
+esac
 
 print_message info "✅ ${ORANGE}opencode${GREEN} installed! You can now run ${YELLOW}opencode${GREEN} from anywhere."
 print_message info "To uninstall, run: ${YELLOW}./uninstall-local.sh${NC}"

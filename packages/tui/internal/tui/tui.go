@@ -458,12 +458,12 @@ func (a appModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		msg.Height -= 2 // Make space for the status bar
 		a.width, a.height = msg.Width, msg.Height
-		container := min(a.width, 104)
+		container := a.width // Make chat full width instead of limiting to 104
 		if a.fileViewer.HasFile() {
 			if a.width < fileViewerFullWidthCutoff {
 				container = a.width
 			} else {
-				container = min(min(a.width, max(a.width/2, 50)), 104)
+				container = max(a.width/2, 50) // Remove 104 limit, use at least half width
 			}
 		}
 		layout.Current = &layout.LayoutInfo{
