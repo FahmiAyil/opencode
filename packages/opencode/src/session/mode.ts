@@ -30,15 +30,6 @@ export namespace Mode {
         name: "build",
         tools: {},
       },
-      plan: {
-        name: "plan",
-        model,
-        tools: {
-          write: false,
-          edit: false,
-          patch: false,
-        },
-      },
     }
     for (const [key, value] of Object.entries(cfg.mode ?? {})) {
       if (value.disable) continue

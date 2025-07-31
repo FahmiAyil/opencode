@@ -19,14 +19,5 @@
       }
     }
   },
-  "mcp": {
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/sse"
-    },
-    "weather": {
-      "type": "local",
-      "command": ["opencode", "x", "@h1deya/mcp-server-weather"]
-    }
-  }
+  "mcp": {}
 }
