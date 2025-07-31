@@ -534,6 +534,16 @@ func (a Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		a.app.State.UpdateModelUsage(msg.Provider.ID, msg.Model.ID)
 		cmds = append(cmds, a.app.SaveState())
+	case dialog.ModeSelectedMsg:
+		// Set the selected mode
+		a.app.Mode = &msg.Mode
+		// Find and set the mode index for consistency with cycling
+		for i, mode := range a.app.Modes {
+			if mode.Name == msg.Mode.Name {
+				a.app.ModeIndex = i
+				break
+			}
+		}
 	case dialog.ThemeSelectedMsg:
 		a.app.State.Theme = msg.ThemeName
 		cmds = append(cmds, a.app.SaveState())
@@ -683,13 +693,13 @@ func (a Model) home() string {
 	muted := styles.NewStyle().Foreground(t.TextMuted()).Background(t.Background()).Render
 
 	open := `
-█▀▀█ █▀▀█ █▀▀ █▀▀▄ 
-█░░█ █░░█ █▀▀ █░░█ 
-▀▀▀▀ █▀▀▀ ▀▀▀ ▀  ▀ `
+█▀▀▀ █▀▀█ █  █ █▀▄▀█ ▀█▀
+█▀▀▀ █▄▄█ █▀▀█ █ ▀ █  █
+▀    ▀  ▀ ▀  ▀ ▀   ▀ ▀▀▀ `
 	code := `
-█▀▀ █▀▀█ █▀▀▄ █▀▀
-█░░ █░░█ █░░█ █▀▀
-▀▀▀ ▀▀▀▀ ▀▀▀  ▀▀▀`
+█▀▀█ █  █ ▀█▀ █
+█▄▄█ █▄▄█  █  █
+▀  ▀ ▄▄▄█ ▀▀▀ ▀▀▀`
 
 	logo := lipgloss.JoinHorizontal(
 		lipgloss.Top,
@@ -1013,6 +1023,9 @@ func (a Model) executeCommand(command commands.Command) (tea.Model, tea.Cmd) {
 	case commands.ModelListCommand:
 		modelDialog := dialog.NewModelDialog(a.app)
 		a.modal = modelDialog
+	case commands.ModeListCommand:
+		modeDialog := dialog.NewModeDialog(a.app)
+		a.modal = modeDialog
 	case commands.ThemeListCommand:
 		themeDialog := dialog.NewThemeDialog()
 		a.modal = themeDialog

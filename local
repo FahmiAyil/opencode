@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Build OpenCode locally for development
+set -e
+
+echo "🚀 Building OpenCode locally..."
+bun run build-local.ts
+
+echo ""
+echo "✅ Build complete! You can now use:"
+echo "   oc --help"
+echo "   oc --version"
+echo ""
+echo "💡 To rebuild after changes, run:"
+echo "   npm run local"
+echo "   or"
+echo "   ./local"
