@@ -144,6 +144,7 @@ export namespace Config {
     .object({
       model: z.string().optional(),
       temperature: z.number().optional(),
+      top_p: z.number().optional(),
       prompt: z.string().optional(),
       tools: z.record(z.string(), z.boolean()).optional(),
       disable: z.boolean().optional(),
@@ -290,6 +291,23 @@ export namespace Config {
           }),
         )
         .optional(),
+      lsp: z
+        .record(
+          z.string(),
+          z.union([
+            z.object({
+              disabled: z.literal(true),
+            }),
+            z.object({
+              command: z.array(z.string()),
+              extensions: z.array(z.string()).optional(),
+              disabled: z.boolean().optional(),
+              env: z.record(z.string(), z.string()).optional(),
+              initialization: z.record(z.string(), z.any()).optional(),
+            }),
+          ]),
+        )
+        .optional(),
       instructions: z.array(z.string()).optional().describe("Additional instruction files or patterns to include"),
       layout: Layout.optional().describe("@deprecated Always uses stretch layout."),
       permission: z
@@ -374,14 +392,21 @@ export namespace Config {
       return process.env[varName] || ""
     })
 
-    const fileMatches = text.match(/"?\{file:([^}]+)\}"?/g)
+    const fileMatches = text.match(/\{file:[^}]+\}/g)
     if (fileMatches) {
       const configDir = path.dirname(configPath)
+      const lines = text.split("\n")
+
       for (const match of fileMatches) {
-        const filePath = match.replace(/^"?\{file:/, "").replace(/\}"?$/, "")
+        const lineIndex = lines.findIndex((line) => line.includes(match))
+        if (lineIndex !== -1 && lines[lineIndex].trim().startsWith("//")) {
+          continue // Skip if line is commented
+        }
+        const filePath = match.replace(/^\{file:/, "").replace(/\}$/, "")
         const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(configDir, filePath)
-        const fileContent = await Bun.file(resolvedPath).text()
-        text = text.replace(match, JSON.stringify(fileContent))
+        const fileContent = (await Bun.file(resolvedPath).text()).trim()
+        // escape newlines/quotes, strip outer quotes
+        text = text.replace(match, JSON.stringify(fileContent).slice(1, -1))
       }
     }
 

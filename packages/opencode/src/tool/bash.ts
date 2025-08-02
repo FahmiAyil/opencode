@@ -5,13 +5,16 @@ import { App } from "../app/app"
 import { Permission } from "../permission"
 import { Config } from "../config/config"
 import { Filesystem } from "../util/filesystem"
-import path from "path"
 import { lazy } from "../util/lazy"
-import { minimatch } from "minimatch"
+import { Log } from "../util/log"
+import { Wildcard } from "../util/wildcard"
+import { $ } from "bun"
 
 const MAX_OUTPUT_LENGTH = 30000
 const DEFAULT_TIMEOUT = 1 * 60 * 1000
 const MAX_TIMEOUT = 10 * 60 * 1000
+
+const log = Log.create({ service: "bash-tool" })
 
 const parser = lazy(async () => {
   const { default: Parser } = await import("tree-sitter")
@@ -71,8 +74,9 @@ export const BashTool = Tool.define("bash", {
       // not an exhaustive list, but covers most common cases
       if (["cd", "rm", "cp", "mv", "mkdir", "touch", "chmod", "chown"].includes(command[0])) {
         for (const arg of command.slice(1)) {
-          if (arg.startsWith("-")) continue
-          const resolved = path.resolve(app.path.cwd, arg)
+          if (arg.startsWith("-") || (command[0] === "chmod" && arg.startsWith("+"))) continue
+          const resolved = await $`realpath ${arg}`.text().then((x) => x.trim())
+          log.info("resolved path", { arg, resolved })
           if (!Filesystem.contains(app.path.cwd, resolved)) {
             throw new Error(
               `This command references paths outside of ${app.path.cwd} so it is not allowed to be executed.`,
@@ -85,9 +89,9 @@ export const BashTool = Tool.define("bash", {
       if (!needsAsk && command[0] !== "cd") {
         const ask = (() => {
           for (const [pattern, value] of Object.entries(permissions)) {
-            if (minimatch(node.text, pattern)) {
-              return value
-            }
+            const match = Wildcard.match(node.text, pattern)
+            log.info("checking", { text: node.text.trim(), pattern, match })
+            if (match) return value
           }
           return "ask"
         })()

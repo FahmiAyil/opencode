@@ -847,6 +847,7 @@ export namespace Session {
       temperature: model.info.temperature
         ? (mode.temperature ?? ProviderTransform.temperature(input.providerID, input.modelID))
         : undefined,
+      topP: mode.topP ?? ProviderTransform.topP(input.providerID, input.modelID),
       tools: model.info.tool_call === false ? undefined : tools,
       model: wrapLanguageModel({
         model: model.language,
@@ -1115,7 +1116,7 @@ export namespace Session {
         }
         const p = await getParts(assistantMsg.sessionID, assistantMsg.id)
         for (const part of p) {
-          if (part.type === "tool" && part.state.status !== "completed") {
+          if (part.type === "tool" && part.state.status !== "completed" && part.state.status !== "error") {
             updatePart({
               ...part,
               state: {
